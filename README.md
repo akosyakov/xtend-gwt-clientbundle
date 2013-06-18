@@ -90,5 +90,5 @@ val className = stockResources.stock.watchListNumericColumn
 If you want to compare Xtend version of StockWatcher with Java version you can find the second one here:
 https://developers.google.com/web-toolkit/tools/gwtdesigner/tutorials/StockWatcher.zip
 
-
+![StockWatcher Application](https://github.com/akosyakov/xtend-gwt-clientbundle/blob/master/images/stockwatcher24.png?raw=true "StockWatcher Application")
 
