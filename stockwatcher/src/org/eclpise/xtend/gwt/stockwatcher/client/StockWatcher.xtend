@@ -75,8 +75,8 @@ class StockWatcher implements EntryPoint {
 						]
 						text = "Add"
 					]
-					lastUpdatedLabel = children = new Label("New Label")
 				]
+				lastUpdatedLabel = children = new Label("New Label")
 			], 5, 5)
 
 		val Timer timer = [ |
