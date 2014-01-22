@@ -12,12 +12,11 @@ How to use ClientBundle active annotation?
 ```java
 @ImageResources("org/eclpise/xtend/gwt/stockwatcher/images")
 @CssResource(value="stock", csses="org/eclpise/xtend/gwt/stockwatcher/css/StockWatcher.css")
-@ClientBundle("/Users/kosyakov/Documents/workspaces/vaadin/xtend-gwt-clientbundle/stockwatcher/src/")
+@ClientBundle
 interface StockResources {
 }
 ```
 @ClientBundle - this annotation is used to declare an interface as ClientBundle. 
-As value of the annotation you should type the path to the source folder.
 
 @CssResource - this annotation is used to specify a css resource. 
 As value you should type the alias of resource. Later you will use it to access this resource.
