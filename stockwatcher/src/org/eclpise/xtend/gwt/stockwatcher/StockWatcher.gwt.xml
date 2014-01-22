@@ -2,6 +2,9 @@
 <module rename-to="stockwatcher">
 	<inherits name="com.google.gwt.user.User" />
 	<inherits name="com.google.gwt.user.theme.standard.Standard" />
-	<inherits name="org.eclipse.xtend.GwtXtend" />
+	<inherits name="com.google.gwt.resources.Resources" />
+	<inherits name="org.eclipse.xtext.xbase.lib.Lib" />
+	<inherits name="org.eclipse.xtend2.lib.Lib" />
+	<inherits name="org.eclipse.xtend.lib.Lib" />
 	<entry-point class="org.eclpise.xtend.gwt.stockwatcher.client.StockWatcher" />
 </module>
