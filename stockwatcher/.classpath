@@ -6,10 +6,11 @@
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/guava-gwt-13.0.jar"/>
 	<classpathentry kind="lib" path="lib/guava-13.0.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.xtend.lib_2.5.1.v201401211046.jar" sourcepath="lib/org.eclipse.xtend.lib.source_2.5.1.v201401211046.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.xtend.lib.gwt_2.5.1.v201401211046.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.xtext.xbase.lib_2.5.1.v201401211046.jar" sourcepath="lib/org.eclipse.xtext.xbase.lib.source_2.5.1.v201401211046.jar"/>
-	<classpathentry kind="lib" path="lib/org.eclipse.xtext.xbase.lib.gwt_2.5.1.v201401211046.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/xtend-gwt-clientbundle-annotation"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.xtend.lib_2.7.0.v201408271236.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.xtend.lib.gwt_2.7.0.v201408271236.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.xtext.xbase.lib_2.7.0.v201408271236.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.xtext.xbase.lib.gwt_2.7.0.v201408271236.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.xtend.lib.macro_2.7.0.v201408271236.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>

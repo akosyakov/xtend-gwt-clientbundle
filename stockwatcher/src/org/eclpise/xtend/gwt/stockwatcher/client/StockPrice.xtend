@@ -1,9 +1,11 @@
 package org.eclpise.xtend.gwt.stockwatcher.client
 
+import org.eclipse.xtend.lib.annotations.Accessors
+
 class StockPrice {
-	@Property String symbol;
-	@Property double price;
-	@Property double change;
+	@Accessors String symbol;
+	@Accessors double price;
+	@Accessors double change;
 
 	new(String symbol, double price, double change) {
 		this.symbol = symbol

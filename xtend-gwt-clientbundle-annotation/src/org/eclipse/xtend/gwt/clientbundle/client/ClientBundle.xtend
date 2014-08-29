@@ -80,10 +80,10 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 		extendedInterfaces = extendedInterfaces + #[com.google.gwt.resources.client.ClientBundle.newTypeReference]
 		val utilType = findClass(utilTypeName)
 		val clientBundleType = newTypeReference
-		utilType.addField(INSTANCE,
-			[
-				static = true
-			]).type = clientBundleType
+		utilType.addField(INSTANCE) [
+			static = true
+			type = clientBundleType
+		]
 
 		val clientBundle = findAnnotation(ClientBundle.newTypeReference.type)
 		val sourceFolder = compilationUnit.filePath.sourceFolder
@@ -93,12 +93,13 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 			val cssResourceType = findInterface(getCssResourceTypeName(cssResource))
 			cssResourceType.doTransform(clientBundle, cssResource, context)
 
-			addMethod(cssResource.value,
-				[
-					addAnnotation(Source.newTypeReference.type) => [
+			addMethod(cssResource.value) [
+				returnType = cssResourceType.newTypeReference
+				addAnnotation(
+					Source.newAnnotationReference [
 						setStringValue("value", cssResource.csses)
-					]
-				]).returnType = cssResourceType.newTypeReference
+					])
+			]
 		}
 
 		val imageResource = findAnnotation(ImageResources.newTypeReference.type)
@@ -108,32 +109,39 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 				if (EXTENSIONS.map[format|children.fileExtension == format].reduce[sf1, sf2|(sf1 || sf2)]) {
 					addMethod(children.lastSegment.methodName) [
 						returnType = ImageResource.newTypeReference
-						addAnnotation(Source.newTypeReference.type) => [
-							setStringValue("value",
-								'''«imageResourceValue»«IF !imageResourceValue.endsWith('/')»/«ENDIF»«children.lastSegment»''')
-						]
+						addAnnotation(
+							Source.newAnnotationReference [
+								setStringValue("value",
+									'''«imageResourceValue»«IF !imageResourceValue.endsWith('/')»/«ENDIF»«children.
+										lastSegment»''')
+							])
 					]
 				}
 			]
 		}
 
-		val getMethodBody = '''
-		if («INSTANCE» == null) {
-			«INSTANCE» = «GWT.name».create(«clientBundleType.simpleName».class);
-			«FOR cssResource : cssResources»
-				«INSTANCE».«cssResource.value»().ensureInjected();
-			«ENDFOR»
+		utilType.addMethod('get') [
+			static = true
+			body = [
+				'''
+				if («INSTANCE» == null) {
+					«INSTANCE» = «GWT.name».create(«clientBundleType.simpleName».class);
+					«FOR cssResource : cssResources»
+						«INSTANCE».«cssResource.value»().ensureInjected();
+					«ENDFOR»
+				}
+				return «INSTANCE»;'''
+			]
+			returnType = clientBundleType
+		]
+
+		removeAnnotation(clientBundle)
+		if (imageResource != null) {
+			removeAnnotation(imageResource)
 		}
-		return «INSTANCE»;'''
-		utilType.addMethod('get',
-			[
-				static = true
-				body = [getMethodBody]
-			]).returnType = clientBundleType
-		
-		clientBundle.remove
-		imageResource?.remove
-		cssResources.forEach[remove]
+		for (cssResource : cssResources) {
+			removeAnnotation(cssResource)
+		}
 	}
 
 	def doTransform(MutableInterfaceDeclaration it, AnnotationReference clientBundle, AnnotationReference cssResouce,
@@ -171,9 +179,10 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 		if (findDeclaredMethod(methodName) == null) {
 			return addMethod(methodName) [
 				returnType = String.newTypeReference
-				addAnnotation(ClassName.newTypeReference.type) => [
-					setStringValue('value', className)
-				]
+				addAnnotation(
+					ClassName.newAnnotationReference [
+						setStringValue('value', className)
+					])
 			]
 		}
 		addMethod('''«methodName»Class''', className, context)
