@@ -20,6 +20,7 @@ import org.eclipse.xtend.lib.macro.declaration.AnnotationReference
 import org.eclipse.xtend.lib.macro.declaration.InterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableInterfaceDeclaration
 import org.eclipse.xtend.lib.macro.declaration.MutableMethodDeclaration
+import org.eclipse.xtend.lib.macro.file.Path
 
 @Target(ElementType.TYPE)
 annotation CssResource {
@@ -51,29 +52,24 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 	}
 
 	def doRegisterGlobals(InterfaceDeclaration it, extension RegisterGlobalsContext context) {
-		registerClass(getUtilTypeName)
-		for (cssResource : getCssResources) {
+		registerClass(utilTypeName)
+		for (cssResource : cssResources) {
 			registerInterface(getCssResourceTypeName(cssResource))
 		}
 	}
 
-	def getCssResourceTypeName(InterfaceDeclaration it, AnnotationReference cssResource) {
-		'''«getPackageName».«cssResource.getValue.toFirstUpper»CssResource'''.toString
-	}
+	def String getCssResourceTypeName(InterfaceDeclaration it, AnnotationReference cssResource) '''«packageName».«cssResource.
+		value.toFirstUpper»CssResource'''
 
 	def getPackageName(InterfaceDeclaration it) {
 		qualifiedName.substring(0, qualifiedName.length - simpleName.length - 1)
 	}
 
-	def getUtilTypeName(InterfaceDeclaration it) {
-		'''«qualifiedName».Util'''.toString
-	}
+	def String getUtilTypeName(InterfaceDeclaration it) '''«qualifiedName».Util'''
 
 	override doTransform(List<? extends MutableInterfaceDeclaration> annotatedTargetElements,
 		extension TransformationContext context) {
-		for (MutableInterfaceDeclaration it : annotatedTargetElements) {
-			doTransform(context)
-		}
+		annotatedTargetElements.forEach[doTransform(context)]
 	}
 
 	def doTransform(MutableInterfaceDeclaration it, extension TransformationContext context) {
@@ -98,26 +94,26 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 				addAnnotation(
 					Source.newAnnotationReference [
 						setStringValue("value", cssResource.csses)
-					])
+					]
+				)
 			]
 		}
 
 		val imageResource = findAnnotation(ImageResources.newTypeReference.type)
 		if (imageResource != null) {
 			val imageResourceValue = imageResource.value
-			sourceFolder.append(imageResourceValue).children.forEach [ children |
-				if (EXTENSIONS.map[format|children.fileExtension == format].reduce[sf1, sf2|(sf1 || sf2)]) {
-					addMethod(children.lastSegment.methodName) [
-						returnType = ImageResource.newTypeReference
-						addAnnotation(
-							Source.newAnnotationReference [
-								setStringValue("value",
-									'''«imageResourceValue»«IF !imageResourceValue.endsWith('/')»/«ENDIF»«children.
-										lastSegment»''')
-							])
-					]
-				}
-			]
+			for (imagePath : sourceFolder.append(imageResourceValue).children.filter[image]) {
+				addMethod(imagePath.lastSegment.methodName) [
+					returnType = ImageResource.newTypeReference
+					addAnnotation(
+						Source.newAnnotationReference [
+							val location = '''«imageResourceValue»«IF !imageResourceValue.endsWith('/')»/«ENDIF»«imagePath.
+								lastSegment»'''
+							setStringValue("value", location)
+						]
+					)
+				]
+			}
 		}
 
 		utilType.addMethod('get') [
@@ -144,11 +140,16 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 		}
 	}
 
+	protected def isImage(Path path) {
+		EXTENSIONS.exists[format|path.fileExtension == format]
+	}
+
 	def doTransform(MutableInterfaceDeclaration it, AnnotationReference clientBundle, AnnotationReference cssResouce,
 		extension TransformationContext context) {
 		extendedInterfaces = extendedInterfaces + #[com.google.gwt.resources.client.CssResource.newTypeReference]
 		val sourceFolder = compilationUnit.filePath.sourceFolder
-		val cssStylesheet = GenerateCssAst.exec(new PrintWriterTreeLogger,
+		val cssStylesheet = GenerateCssAst.exec(
+			new PrintWriterTreeLogger,
 			cssResouce.csses.map [
 				sourceFolder.append(it)
 			].filter [
@@ -159,19 +160,21 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 				true
 			].map [
 				toURI.toURL
-			]);
-		val defsCollector = new DefsCollector();
-		defsCollector.accept(cssStylesheet);
-		defsCollector.defs.forEach [ ^def |
+			]
+		)
+
+		val defsCollector = new DefsCollector
+		defsCollector.accept(cssStylesheet)
+		for (def : defsCollector.defs) {
 			addMethod(def) [
 				returnType = String.newTypeReference
 			]
-		]
+		}
 
-		ExtractClassNamesVisitor.exec(cssStylesheet).forEach [ className |
+		for (className : ExtractClassNamesVisitor.exec(cssStylesheet)) {
 			val methodName = className.methodName
-			addMethod(it, methodName, className, context)
-		]
+			addMethod(methodName, className, context)
+		}
 	}
 
 	def MutableMethodDeclaration addMethod(MutableInterfaceDeclaration it, String methodName, String className,
@@ -182,7 +185,8 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 				addAnnotation(
 					ClassName.newAnnotationReference [
 						setStringValue('value', className)
-					])
+					]
+				)
 			]
 		}
 		addMethod('''«methodName»Class''', className, context)
