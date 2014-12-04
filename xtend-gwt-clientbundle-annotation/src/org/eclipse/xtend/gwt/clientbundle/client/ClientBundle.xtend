@@ -107,9 +107,7 @@ class CliendBundleProcessor implements RegisterGlobalsParticipant<InterfaceDecla
 					returnType = ImageResource.newTypeReference
 					addAnnotation(
 						Source.newAnnotationReference [
-							val location = '''«imageResourceValue»«IF !imageResourceValue.endsWith('/')»/«ENDIF»«imagePath.
-								lastSegment»'''
-							setStringValue("value", location)
+							setStringValue("value", sourceFolder.relativize(imagePath).toString)
 						]
 					)
 				]
